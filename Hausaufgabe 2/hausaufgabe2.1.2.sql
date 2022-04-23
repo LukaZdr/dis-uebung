@@ -60,7 +60,7 @@ create table estates(
 );
 
 alter table estates 
-	add constraint fk_estate_estate_agents foreign key (agent_id) references estate_agents (id);
+	add constraint fk_estate_estate_agents foreign key (agent_id) references estate_agents (id) on delete set null;
 
 create table apartments(
 	id serial primary key,
@@ -73,9 +73,9 @@ create table apartments(
 );
 
 alter table apartments
-	add constraint fk_apartments_estates foreign key (estate_id) references estates (id);
+	add constraint fk_apartments_estates foreign key (estate_id) references estates (id) on delete cascade;
 
-create table house(
+create table houses(
 	id serial primary key,
 	floors int not null,
 	price money not null,
@@ -83,8 +83,8 @@ create table house(
 	estate_id int not null
 );
 
-alter table house
-	add constraint fk_house_estates foreign key (estate_id) references estates (id);
+alter table houses
+	add constraint fk_houses_estates foreign key (estate_id) references estates (id) on delete cascade;
 
 /* Relations */
 
@@ -115,23 +115,10 @@ alter table sells
 	add constraint fk_sells_purchase_contract foreign key (purchase_contract_id) references purchase_contracts (id);
 
 alter table sells
-	add constraint fk_sells_house foreign key (house_id) references house (id);
+	add constraint fk_sells_house foreign key (house_id) references houses (id);
 
 alter table sells
 	add constraint fk_sells_person foreign key (person_id) references persons (id);
-
-create table manages(
-	id serial primary key,
-	estate_id int not null,
-	estate_agent_id int not null
-);
-
-alter table manages
-	add constraint fk_manages_estate foreign key (estate_id) references estates (id);
-
-alter table manages
-	add constraint fk_manages_estate_agent foreign key (estate_agent_id) references estate_agents (id);
-	
 
 /* Initializing data */
 
@@ -169,11 +156,8 @@ values (2, 12, 1, 68);
 insert into estates(id, city, postal_code, street, street_number, square_area, agent_id)
 values (55, 'Berlin', 22222, 'Thebeststreet', 420, 250, 70);
 
-insert into house(id, floors, price, garden, estate_id)
+insert into houses(id, floors, price, garden, estate_id)
 values (1, 2, '$530.000', false, 55);
 
 insert into sells(id, purchase_contract_id, house_id, person_id)
 values (1, 16, 1, 68);
-
-insert into manages(id, estate_id, estate_agent_id)
-values (1, 55, 70);

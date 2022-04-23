@@ -102,7 +102,7 @@ public class Makler {
 	/**
 	 * Löscht einen Makler für eine id
 	 */
-	public static boolean delete(int id) {
+	public static void delete(int id) {
 		
 		try {
 			// Hole Verbindung
@@ -114,14 +114,11 @@ public class Makler {
 			pstmt.setInt(1, id);
 			
 			// FÃ¼hre Anfrage aus
-			ResultSet rs = pstmt.executeQuery();
-			System.out.print(rs);
+			pstmt.executeQuery();
 			pstmt.close();
-			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return false;
 	}
 	
 	/**
@@ -149,7 +146,7 @@ public class Makler {
 				pstmt.setString(4, getPassword());
 				pstmt.executeUpdate();
 
-				// Hole die Id des engefC<gten Datensatzes
+				// Hole die Id des engefC<gten Datensantelltzes
 				ResultSet rs = pstmt.getGeneratedKeys();
 				if (rs.next()) {
 					setId(rs.getInt(1));

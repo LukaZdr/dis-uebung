@@ -133,13 +133,8 @@ public class Main {
 	 */
 	public static void deleteMarkler() {
 		int id = FormUtil.readInt("MarklerId");
-		boolean delete_success = Makler.delete(id);
-
-		if (delete_success) {
-			System.out.println("Makler mit der ID "+id+" wurde gelöscht.");
-		} else {
-			System.out.println("Makler mit der ID "+id+" konnte nicht gelöscht werden.");
-		}
+		Makler.delete(id);
+		System.out.println("Makler mit der ID "+id+" wurde gelöscht.");
 	}
 	
 	/**
