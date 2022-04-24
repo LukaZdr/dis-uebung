@@ -5,14 +5,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.*;
 
 public class Mietvertrag {
 	// Vertrag
-	private String contractDate;
+	private Date contractDate;
 	private String place;
 	// Mietvertrag
 	private int id = -1;
-	private String startDate;
+	private Date startDate;
 	private String duration;
 	private String additionalCosts;
 	private int contractNumber;
@@ -21,11 +22,11 @@ public class Mietvertrag {
 	private int personId;
 	
 	// Vertrag
-	public String getContractDate() {
+	public Date getContractDate() {
 		return contractDate;
 	}
-	public void setContractDate(String contractDate) {
-		this.contractDate = contractDate;
+	public void setContractDate(Date date) {
+		this.contractDate = date;
 	}
 	public String getPlace() {
 		return place;
@@ -41,10 +42,10 @@ public class Mietvertrag {
 	public void setId(int id) {
 		this.id = id;
 	}
-	public String getStartDate() {
+	public Date getStartDate() {
 		return startDate;
 	}
-	public void setStartDate(String startDate) {
+	public void setStartDate(Date startDate) {
 		this.startDate = startDate;
 	}
 	public String getDuration() {
@@ -95,7 +96,7 @@ public class Mietvertrag {
 					Statement.RETURN_GENERATED_KEYS);
 
 			// Setze Anfrageparameter und fC<hre Anfrage aus
-			pstmtContract.setDate(1, Date.valueOf(getContractDate()));
+			pstmtContract.setDate(1, getContractDate());
 			pstmtContract.setString(2, getPlace());
 			pstmtContract.executeUpdate();
 
@@ -111,7 +112,7 @@ public class Mietvertrag {
 			PreparedStatement pstmtTenancy = con.prepareStatement(insertHausSQL,
 					Statement.RETURN_GENERATED_KEYS);
 			
-			pstmtTenancy.setDate(1, Date.valueOf(getStartDate()));
+			pstmtTenancy.setDate(1, getStartDate());
 			pstmtTenancy.setString(2, getDuration());
 			pstmtTenancy.setString(3, getAdditionalCosts());
 			pstmtTenancy.setInt(4, getContractNumber());
@@ -142,5 +143,36 @@ public class Mietvertrag {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static List<Mietvertrag> index() {
+		Connection con = DbConnectionManager.getInstance().getConnection();
+		try {
+			String selectJoinSQL = "SELECT * FROM tenancy_contracts AS tc JOIN contracts AS c ON tc.contract_number = c.contract_number JOIN rents AS r ON tc.id = r.tenancy_contracts_id";
+			PreparedStatement pstmt = con.prepareStatement(selectJoinSQL);
+			ResultSet rs = pstmt.executeQuery();
+			
+			List<Mietvertrag> rentList = new ArrayList<Mietvertrag>();
+			while (rs.next()) {
+				Mietvertrag m = new Mietvertrag();
+				m.setContractDate(rs.getDate("contract_date"));
+				m.setPlace(rs.getString("place"));
+				// Mietvertrag
+				m.setId(rs.getInt("id"));
+				m.setStartDate(rs.getDate("start_date"));
+				m.setDuration(rs.getString("duration"));
+				m.setAdditionalCosts(rs.getString("additional_costs"));
+				m.setContractNumber(rs.getInt("contract_number"));
+				// Vermietungen
+				m.setApartmentId(rs.getInt("apartment_id"));
+				m.setPersonId(rs.getInt("person_id"));
+				rentList.add(m);
+				
+			}
+			return rentList;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

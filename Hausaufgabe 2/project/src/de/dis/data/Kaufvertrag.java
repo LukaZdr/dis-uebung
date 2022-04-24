@@ -5,10 +5,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Kaufvertrag {
 	// Vertrag
-	private String contractDate;
+	private Date contractDate;
 	private String place;
 	// Mietvertrag
 	private int id = -1;
@@ -20,10 +22,10 @@ public class Kaufvertrag {
 	private int personId;
 
 	// Vertrag
-	public String getContractDate() {
+	public Date getContractDate() {
 		return contractDate;
 	}
-	public void setContractDate(String contractDate) {
+	public void setContractDate(Date contractDate) {
 		this.contractDate = contractDate;
 	}
 	public String getPlace() {
@@ -86,7 +88,7 @@ public class Kaufvertrag {
 					Statement.RETURN_GENERATED_KEYS);
 
 			// Setze Anfrageparameter und fC<hre Anfrage aus
-			pstmtContract.setDate(1, Date.valueOf(getContractDate()));
+			pstmtContract.setDate(1, getContractDate());
 			pstmtContract.setString(2, getPlace());
 			pstmtContract.executeUpdate();
 
@@ -133,5 +135,35 @@ public class Kaufvertrag {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static List<Kaufvertrag> index() {
+		Connection con = DbConnectionManager.getInstance().getConnection();
+		try {
+			String selectJoinSQL = "SELECT * FROM purchase_contracts AS pc JOIN contracts AS c ON pc.contract_number = c.contract_number JOIN sells AS s ON pc.id = s.purchase_contract_id";
+			PreparedStatement pstmt = con.prepareStatement(selectJoinSQL);
+			ResultSet rs = pstmt.executeQuery();
+			
+			List<Kaufvertrag> purchaseList = new ArrayList<Kaufvertrag>();
+			while (rs.next()) {
+				Kaufvertrag k = new Kaufvertrag();
+				k.setContractDate(rs.getDate("contract_date"));
+				k.setPlace(rs.getString("place"));
+				// Mietvertrag
+				k.setId(rs.getInt("id"));
+				k.setInstallmentNumber(rs.getInt("installment_number"));
+				k.setInterestRate(rs.getFloat("interest_rate"));
+				k.setContractNumber(rs.getInt("contract_number"));
+				// Vermietungen
+				k.setHouseId(rs.getInt("house_id"));
+				k.setPersonId(rs.getInt("person_id"));
+				purchaseList.add(k);
+				
+			}
+			return purchaseList;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

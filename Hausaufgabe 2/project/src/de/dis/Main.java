@@ -1,5 +1,7 @@
 package de.dis;
 
+import java.sql.Date;
+import java.util.List;
 import java.util.Objects;
 
 import de.dis.data.Kaufvertrag;
@@ -189,7 +191,7 @@ public class Main {
 					createPurchaseContract();
 					break;
 				case CONTRACT_OWERVIEW:
-					deleteMarkler();
+					contractOverview();
 					break;
 				case BACK:
 					return;
@@ -214,9 +216,9 @@ public class Main {
 	public static void createTenancyContract() {
 		Mietvertrag m = new Mietvertrag();
 		
-		m.setContractDate(FormUtil.readString("Vertragsdatum"));
+		m.setContractDate(Date.valueOf(FormUtil.readString("Vertragsdatum")));
 		m.setPlace(FormUtil.readString("Ort"));
-		m.setStartDate(FormUtil.readString("Vertragsbeginn"));
+		m.setStartDate(Date.valueOf(FormUtil.readString("Vertragsbeginn")));
 		m.setDuration(FormUtil.readString("Vertragsdauer"));
 		m.setAdditionalCosts(FormUtil.readString("Zusätzliche Kosten"));
 		m.setPersonId(FormUtil.readInt("PersonId"));
@@ -230,7 +232,7 @@ public class Main {
 		Kaufvertrag k = new Kaufvertrag();
 
 		
-		k.setContractDate(FormUtil.readString("Vertragsdatum"));
+		k.setContractDate(Date.valueOf(FormUtil.readString("Vertragsdatum")));
 		k.setPlace(FormUtil.readString("Ort"));
 		k.setInstallmentNumber(FormUtil.readInt("Ratennummer"));
 		k.setInterestRate(FormUtil.readInt("Zinssatz"));
@@ -239,5 +241,36 @@ public class Main {
 		k.save();
 		
 		System.out.println("Kaufvertrag mit der ID "+k.getId()+" wurde erzeugt.");
+	}
+	
+	public static void contractOverview() {
+		System.out.println("Mietverträge:");
+		List<Mietvertrag> ms = Mietvertrag.index();
+        for (int i = 0; i < ms.size(); i++) {
+        	Mietvertrag m = ms.get(i);
+        	System.out.println("Id: " + m.getId() +
+        					   " |Vertragsnummer:" + m.getContractNumber() +
+        					   " |Ort:" + m.getPlace() +
+        					   " |Vertragsdatum:" + m.getContractDate() +
+        					   " |Vertragsbegin:" + m.getStartDate() +
+        					   " |Vertragsdauer:" + m.getDuration() +
+        					   " |Zusätzliche Kosten:" + m.getAdditionalCosts() +
+           					   " |PersonID:" + m.getPersonId() +
+        					   " |ApartmentID:" + m.getApartmentId());
+        }
+
+		System.out.println("Kaufverträge:");
+		List<Kaufvertrag> ks = Kaufvertrag.index();
+        for (int i = 0; i < ks.size(); i++) {
+        	Kaufvertrag k = ks.get(i);
+        	System.out.println("Id: " + k.getId() +
+        					   " |Vertragsnummer:" + k.getContractNumber() +
+        					   " |Ort:" + k.getPlace() +
+        					   " |Vertragsdatum:" + k.getContractDate() +
+        					   " |Ratennummer:" + k.getInstallmentNumber() +
+        					   " |Zinssatz:" + k.getInterestRate() +
+           					   " |PersonID:" + k.getPersonId() +
+        					   " |HausID:" + k.getHouseId());
+        }
 	}
 }
