@@ -5,11 +5,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
+import java.sql.Date;
+import java.util.List;
 
 import de.dis.data.DbConnectionManager;
 import de.dis.data.Haus;
 import de.dis.data.Makler;
 import de.dis.data.Wohnung;
+import de.dis.data.Kaufvertrag;
+import de.dis.data.Mietvertrag;
+import de.dis.data.Person;
 
 /**
  * Hauptklasse
@@ -51,7 +56,7 @@ public class Main {
 					loginMakler();
 					break;
 				case MENU_VERTRAG:
-					System.out.println("Vertrag");
+					showVertragsMenu();
 					break;
 				case QUIT:
 					return;
@@ -114,6 +119,7 @@ public class Main {
 				case DELETE_MAKLER:
 					deleteMarkler();
 				case BACK:
+					showMainMenu();
 					return;
 			}
 		}
@@ -334,7 +340,134 @@ public class Main {
 			e.printStackTrace();
 		}
 	}
+//	public static void showImmobilienMenu() {
+//		// Menu optionen
+//		final int N
+//	}
+
+	/**
+	 * ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	 * ============================== Vertragsverwaltung ============================
+	 * ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	 */
 	
+	/**
+	 * Zeigt die Vertragsverwaltung
+	 */
+	public static void showVertragsMenu() {
+		//Men√ºoptionen
+		final int NEW_PERSON = 0;
+		final int CREATE_TENANCY_CONTRACT = 1;
+		final int CREATE_PURCHASE_CONTRACT = 2;
+		final int CONTRACT_OWERVIEW = 3;
+		final int BACK = 4;
+		
+		//Maklerverwaltungsmen√º
+		Menu maklerMenu = new Menu("Vertrags-Verwaltung");
+		maklerMenu.addEntry("Neue Person", NEW_PERSON);
+		maklerMenu.addEntry("Neuer Mietvertrag", CREATE_TENANCY_CONTRACT);
+		maklerMenu.addEntry("Neue Kaufvertrag", CREATE_PURCHASE_CONTRACT);
+		maklerMenu.addEntry("Vertrags¸bersicht", CONTRACT_OWERVIEW);
+		maklerMenu.addEntry("Zur√ºck zum Hauptmen√º", BACK);
+		
+		//Verarbeite Eingabe
+		while(true) {
+			int response = maklerMenu.show();
+			
+			switch(response) {
+				case NEW_PERSON:
+					newPerson();
+					break;
+				case CREATE_TENANCY_CONTRACT:
+					createTenancyContract();
+					break;
+				case CREATE_PURCHASE_CONTRACT:
+					createPurchaseContract();
+					break;
+				case CONTRACT_OWERVIEW:
+					contractOverview();
+					break;
+				case BACK:
+					showMainMenu();
+					return;
+			}
+		}
+	}
 	
+	/**
+	 * Neue Person
+	 */
+
+	public static void newPerson() {
+		Person p = new Person();
+		
+		p.setFirstName(FormUtil.readString("Vorname"));
+		p.setLastName(FormUtil.readString("Nachname"));
+		p.setAddress(FormUtil.readString("Adresse"));
+		p.save();
+		
+		System.out.println("Person mit der ID "+p.getId()+" wurde erzeugt.");
+	}
+	public static void createTenancyContract() {
+		Mietvertrag m = new Mietvertrag();
+		
+		m.setContractDate(Date.valueOf(FormUtil.readString("Vertragsdatum (YYY-dd-mm)")));
+		m.setPlace(FormUtil.readString("Ort"));
+		m.setStartDate(Date.valueOf(FormUtil.readString("Vertragsbeginn (YYY-dd-mm)")));
+		m.setDuration(FormUtil.readString("Vertragsdauer"));
+		float kosten = Float.parseFloat(FormUtil.readString("Zus‰tzliche Kosten"));
+		m.setAdditionalCosts(kosten);
+		m.setPersonId(FormUtil.readInt("PersonId"));
+		m.setApartmentId(FormUtil.readInt("ApartmentId"));
+		m.save();
+		
+		System.out.println("Mietvertrag mit der ID "+m.getId()+" wurde erzeugt.");
+	}
 	
+	public static void createPurchaseContract() {
+		Kaufvertrag k = new Kaufvertrag();
+
+		
+		k.setContractDate(Date.valueOf(FormUtil.readString("Vertragsdatum (YYY-dd-mm)")));
+		k.setPlace(FormUtil.readString("Ort"));
+		k.setInstallmentNumber(FormUtil.readInt("Ratennummer"));
+		float zinssatz = Float.parseFloat(FormUtil.readString("Zinssatz"));
+		k.setInterestRate(zinssatz);
+		k.setPersonId(FormUtil.readInt("PersonId"));
+		k.setHouseId(FormUtil.readInt("HouseId"));
+		k.save();
+		
+		System.out.println("Kaufvertrag mit der ID "+k.getId()+" wurde erzeugt.");
+	}
+	
+	public static void contractOverview() {
+		System.out.println("Mietvertr‰ge:");
+		List<Mietvertrag> ms = Mietvertrag.index();
+        for (int i = 0; i < ms.size(); i++) {
+        	Mietvertrag m = ms.get(i);
+        	System.out.println("Id: " + m.getId() +
+        					   " |Vertragsnummer:" + m.getContractNumber() +
+        					   " |Ort:" + m.getPlace() +
+        					   " |Vertragsdatum:" + m.getContractDate() +
+        					   " |Vertragsbegin:" + m.getStartDate() +
+        					   " |Vertragsdauer:" + m.getDuration() +
+        					   " |Zus‰tzliche Kosten:" + m.getAdditionalCosts() +
+           					   " |PersonID:" + m.getPersonId() +
+        					   " |ApartmentID:" + m.getApartmentId());
+        }
+
+		System.out.println("Kaufvertr‰ge:");
+		List<Kaufvertrag> ks = Kaufvertrag.index();
+        for (int i = 0; i < ks.size(); i++) {
+        	Kaufvertrag k = ks.get(i);
+        	System.out.println("Id: " + k.getId() +
+        					   " |Vertragsnummer:" + k.getContractNumber() +
+        					   " |Ort:" + k.getPlace() +
+        					   " |Vertragsdatum:" + k.getContractDate() +
+        					   " |Ratennummer:" + k.getInstallmentNumber() +
+        					   " |Zinssatz:" + k.getInterestRate() +
+           					   " |PersonID:" + k.getPersonId() +
+        					   " |HausID:" + k.getHouseId());
+        }
+	}
 }
