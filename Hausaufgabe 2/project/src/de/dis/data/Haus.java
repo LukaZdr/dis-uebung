@@ -155,19 +155,24 @@ public class Haus {
 				pstmtHaus.setInt(5, dbImmoId);
 				ResultSet rsHaus = pstmtHaus.getGeneratedKeys();
 				
+				if (rsHaus.next()) {
+					setId(rsHaus.getInt(1));
+				}
+				
 				rsHaus.close();
 				pstmtHaus.close();
 				pstmtImmo.close();
+				
 			} else {
 				// Falls schon eine ID vorhanden ist, mache ein Update...
-				String updateHausSQL = "UPDATE houses SET id = ?, floors = ?, price = ?, garden = ? WHERE id = ?";
+				String updateHausSQL = "UPDATE houses SET floors = ?, price = ?, garden = ? WHERE id = ?";
 				PreparedStatement pstmtHaus = con.prepareStatement(updateHausSQL);
 
 				// Setze Anfrage Parameter
-				pstmtHaus.setInt(1, getId());
-				pstmtHaus.setInt(2, getFloors());
-				pstmtHaus.setString(3, getPrice());
-				pstmtHaus.setBoolean(4, isGarden());
+				pstmtHaus.setInt(1, getFloors());
+				pstmtHaus.setString(2, getPrice());
+				pstmtHaus.setBoolean(3, isGarden());
+				pstmtHaus.setInt(4, getId());
 				pstmtHaus.executeUpdate();
 				
 				String updateImmoSQL = "UPDATE estates SET city = ?, postal_code = ?, street = ?, street_number = ?, square_area = ?, agent_id = ? WHERE id = ?";

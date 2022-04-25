@@ -20,7 +20,7 @@ public class Wohnung {
 	private String rent;
 	private int rooms;
 	private int balcony;
-	private boolean build_in_kitchen;
+	private boolean built_in_kitchen;
 	private int estate_id;
 
 	// Immobilie
@@ -113,19 +113,19 @@ public class Wohnung {
 		this.balcony = balcony;
 	}
 
-	public boolean isBuild_in_kitchen() {
-		return build_in_kitchen;
+	public boolean isBuiltInKitchen() {
+		return built_in_kitchen;
 	}
 
-	public void setBuild_in_kitchen(boolean build_in_kitchen) {
-		this.build_in_kitchen = build_in_kitchen;
+	public void setBuiltInKitchen(boolean built_in_kitchen) {
+		this.built_in_kitchen = built_in_kitchen;
 	}
 
-	public int getEstate_id() {
+	public int getEstateId() {
 		return estate_id;
 	}
 
-	public void setEstate_id(int estate_id) {
+	public void setEstateId(int estate_id) {
 		this.estate_id = estate_id;
 	}
 	
@@ -160,16 +160,17 @@ public class Wohnung {
 					dbImmoId = rsImmo.getInt(1);
 					setId(dbImmoId);
 				}
-				String insertHausSQL = "INSERT INTO apartments (id, floor, rent, rooms, balcony, build_in_kitchen, estate_id) VALUES (?, ?, ?, ?, ?)";
+				String insertHausSQL = "INSERT INTO apartments (id, floor, rent, rooms, balcony, built_in_kitchen, estate_id) VALUES (?, ?, ?, ?, ?)";
 
-=
+
 				PreparedStatement pstmtHaus = con.prepareStatement(insertHausSQL,
 						Statement.RETURN_GENERATED_KEYS);
 				
 				pstmtHaus.setInt(1, getId());
 				pstmtHaus.setInt(2, getFloor());
-				pstmtHaus.setString(3, getPrice());
-				pstmtHaus.setBoolean(4, isGarden());
+				pstmtHaus.setInt(3, getRooms());
+				pstmtHaus.setInt(4, getBalcony());
+				pstmtHaus.setBoolean(5, isBuiltInKitchen());
 				pstmtHaus.setInt(5, dbImmoId);
 				ResultSet rsHaus = pstmtHaus.getGeneratedKeys();
 				
@@ -183,9 +184,10 @@ public class Wohnung {
 
 				// Setze Anfrage Parameter
 				pstmtHaus.setInt(1, getId());
-				pstmtHaus.setInt(2, getFloors());
-				pstmtHaus.setString(3, getPrice());
-				pstmtHaus.setBoolean(4, isGarden());
+				pstmtHaus.setInt(2, getFloor());
+				pstmtHaus.setInt(3, getRooms());
+				pstmtHaus.setInt(4, getBalcony());
+				pstmtHaus.setBoolean(5, isBuiltInKitchen());
 				pstmtHaus.executeUpdate();
 				
 				String updateImmoSQL = "UPDATE estates SET city = ?, postal_code = ?, street = ?, street_number = ?, square_area = ?, agent_id = ? WHERE id = ?";
