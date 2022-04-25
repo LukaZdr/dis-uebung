@@ -111,6 +111,7 @@ public class Main {
 				case DELETE_MAKLER:
 					deleteMarkler();
 				case BACK:
+					showMainMenu();
 					return;
 			}
 		}
@@ -194,6 +195,7 @@ public class Main {
 					contractOverview();
 					break;
 				case BACK:
+					showMainMenu();
 					return;
 			}
 		}
@@ -216,11 +218,12 @@ public class Main {
 	public static void createTenancyContract() {
 		Mietvertrag m = new Mietvertrag();
 		
-		m.setContractDate(Date.valueOf(FormUtil.readString("Vertragsdatum")));
+		m.setContractDate(Date.valueOf(FormUtil.readString("Vertragsdatum (YYY-dd-mm)")));
 		m.setPlace(FormUtil.readString("Ort"));
-		m.setStartDate(Date.valueOf(FormUtil.readString("Vertragsbeginn")));
+		m.setStartDate(Date.valueOf(FormUtil.readString("Vertragsbeginn (YYY-dd-mm)")));
 		m.setDuration(FormUtil.readString("Vertragsdauer"));
-		m.setAdditionalCosts(FormUtil.readString("Zusätzliche Kosten"));
+		float kosten = Float.parseFloat(FormUtil.readString("Zusätzliche Kosten"));
+		m.setAdditionalCosts(kosten);
 		m.setPersonId(FormUtil.readInt("PersonId"));
 		m.setApartmentId(FormUtil.readInt("ApartmentId"));
 		m.save();
@@ -232,10 +235,11 @@ public class Main {
 		Kaufvertrag k = new Kaufvertrag();
 
 		
-		k.setContractDate(Date.valueOf(FormUtil.readString("Vertragsdatum")));
+		k.setContractDate(Date.valueOf(FormUtil.readString("Vertragsdatum (YYY-dd-mm)")));
 		k.setPlace(FormUtil.readString("Ort"));
 		k.setInstallmentNumber(FormUtil.readInt("Ratennummer"));
-		k.setInterestRate(FormUtil.readInt("Zinssatz"));
+		float zinssatz = Float.parseFloat(FormUtil.readString("Zinssatz"));
+		k.setInterestRate(zinssatz);
 		k.setPersonId(FormUtil.readInt("PersonId"));
 		k.setHouseId(FormUtil.readInt("HouseId"));
 		k.save();

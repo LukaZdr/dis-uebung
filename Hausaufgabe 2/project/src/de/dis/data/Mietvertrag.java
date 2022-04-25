@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Duration;
 import java.util.*;
 
 public class Mietvertrag {
@@ -15,7 +16,7 @@ public class Mietvertrag {
 	private int id = -1;
 	private Date startDate;
 	private String duration;
-	private String additionalCosts;
+	private float additionalCosts;
 	private int contractNumber;
 	// Vermietungen
 	private int apartmentId;
@@ -54,10 +55,10 @@ public class Mietvertrag {
 	public void setDuration(String duration) {
 		this.duration = duration;
 	}
-	public String getAdditionalCosts() {
+	public float getAdditionalCosts() {
 		return additionalCosts;
 	}
-	public void setAdditionalCosts(String additionalCosts) {
+	public void setAdditionalCosts(float additionalCosts) {
 		this.additionalCosts = additionalCosts;
 	}
 	public int getContractNumber() {
@@ -114,7 +115,7 @@ public class Mietvertrag {
 			
 			pstmtTenancy.setDate(1, getStartDate());
 			pstmtTenancy.setString(2, getDuration());
-			pstmtTenancy.setString(3, getAdditionalCosts());
+			pstmtTenancy.setFloat(3, getAdditionalCosts());
 			pstmtTenancy.setInt(4, getContractNumber());
 			pstmtTenancy.executeUpdate();
 
@@ -161,7 +162,7 @@ public class Mietvertrag {
 				m.setId(rs.getInt("id"));
 				m.setStartDate(rs.getDate("start_date"));
 				m.setDuration(rs.getString("duration"));
-				m.setAdditionalCosts(rs.getString("additional_costs"));
+				m.setAdditionalCosts(rs.getFloat("additional_costs"));
 				m.setContractNumber(rs.getInt("contract_number"));
 				// Vermietungen
 				m.setApartmentId(rs.getInt("apartment_id"));

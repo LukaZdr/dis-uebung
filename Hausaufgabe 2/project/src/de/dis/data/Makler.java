@@ -114,7 +114,7 @@ public class Makler {
 			pstmt.setInt(1, id);
 			
 			// Führe Anfrage aus
-			pstmt.executeQuery();
+			pstmt.execute();
 			pstmt.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
