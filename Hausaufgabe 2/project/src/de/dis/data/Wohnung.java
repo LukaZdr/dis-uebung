@@ -214,13 +214,28 @@ public static void delete(int id) {
 			// Hole Verbindung
 			Connection con = DbConnectionManager.getInstance().getConnection();
 			
+			String estateIdSQL = "SELECT estate_id FROM apartments WHERE id = ?";
+			PreparedStatement pstmt = con.prepareStatement(estateIdSQL);
+			pstmt.setInt(1, id);
+			ResultSet rs = pstmt.executeQuery();
+			
+			int delete_id;
+			if (rs.next()) {
+				delete_id = rs.getInt("estate_id");
+			} else {
+				System.out.println("Ein Wohnung mit dieser ID existiert nicht");
+				return;
+			}
+
 			// Erzeuge Anfrage
 			String deleteSQL = "DELETE FROM estates WHERE id = ?";
-			PreparedStatement pstmt = con.prepareStatement(deleteSQL);
-			pstmt.setInt(1, id);
+			PreparedStatement pstmtDelete = con.prepareStatement(deleteSQL);
+			pstmtDelete.setInt(1, delete_id);
+
 			
 			// Führe Anfrage aus
-			pstmt.executeQuery();
+			pstmtDelete.execute();
+			pstmtDelete.close();
 			pstmt.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
