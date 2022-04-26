@@ -129,8 +129,10 @@ public class Main {
 					break;
 				case EDIT_MAKLER:
 					editMarkler();
+					break;
 				case DELETE_MAKLER:
 					deleteMarkler();
+					break;
 				case BACK:
 					showMainMenu();
 					return;

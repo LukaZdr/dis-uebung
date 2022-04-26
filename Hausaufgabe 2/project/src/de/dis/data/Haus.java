@@ -199,6 +199,7 @@ public class Haus {
 				pstmtImmo.setInt(5, getSquareArea());
 				pstmtImmo.setInt(6, getAgentId());
 				pstmtImmo.setInt(7, estateId);
+				pstmtImmo.executeUpdate();
 				
 				pstmtImmo.close();
 				pstmtHaus.close();
