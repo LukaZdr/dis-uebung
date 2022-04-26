@@ -56,7 +56,7 @@ create table estates(
 	street varchar(50) not null,
 	street_number int not null,
 	square_area int not null,
-	agent_id int not null
+	agent_id int
 );
 
 alter table estates 
@@ -67,7 +67,7 @@ create table apartments(
 	floor int not null,
 	rent real not null,
 	rooms int not null,
-	balcony int,
+	balcony int not null,
 	built_in_kitchen bool not null,
 	estate_id int not null
 );
@@ -79,7 +79,7 @@ create table houses(
 	id serial primary key,
 	floors int not null,
 	price real not null,
-	garden bool,
+	garden bool not null,
 	estate_id int not null
 );
 
@@ -96,13 +96,13 @@ create table rents(
 );
 
 alter table rents
-	add constraint fk_rents_tenancy_contract foreign key (tenancy_contracts_id) references tenancy_contracts (id);
+	add constraint fk_rents_tenancy_contract foreign key (tenancy_contracts_id) references tenancy_contracts (id) on delete cascade;
 
 alter table rents
 	add constraint fk_rents_apartment foreign key (apartment_id) references apartments (id) on delete cascade;
 
 alter table rents
-	add constraint fk_rents_person foreign key (person_id) references persons (id);
+	add constraint fk_rents_person foreign key (person_id) references persons (id) on delete cascade;
 
 create table sells(
 	id serial primary key,
@@ -112,13 +112,13 @@ create table sells(
 );
 
 alter table sells
-	add constraint fk_sells_purchase_contract foreign key (purchase_contract_id) references purchase_contracts (id);
+	add constraint fk_sells_purchase_contract foreign key (purchase_contract_id) references purchase_contracts (id) on delete cascade;
 
 alter table sells
 	add constraint fk_sells_house foreign key (house_id) references houses (id) on delete cascade;
 
 alter table sells
-	add constraint fk_sells_person foreign key (person_id) references persons (id);
+	add constraint fk_sells_person foreign key (person_id) references persons (id) on delete cascade;
 
 /* Initializing data */
 
