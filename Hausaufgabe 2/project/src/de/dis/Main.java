@@ -317,7 +317,7 @@ public class Main {
 	}
 	
    public static void editEstate() {
-        System.out.println("Möchtest du 1. Haus oder 2. Appartment bearbeiten? Bitte gebe 1 oder 2 ein:");
+        System.out.println("Möchtest du 1. Haus oder 2. Wohnung bearbeiten? Bitte gebe 1 oder 2 ein:");
         int auswahl = FormUtil.readInt("Auswahl");
         if (auswahl == 1) {
             Haus h = new Haus();
@@ -335,8 +335,6 @@ public class Main {
             h.setPrice(FormUtil.readFloat("Preis"));
             h.setGarden(FormUtil.readBoolean("Garten? (True/False)"));
             h.save();
-            System.out.println("Das Haus mit der Id " + h.getId() + " wurde geupdated");
-
         } else if (auswahl == 2) {
             Wohnung w = new Wohnung();
             //Immobilie
@@ -358,7 +356,7 @@ public class Main {
             System.out.println("Die Wohnung mit der Id " + w.getId() + " wurde geupdated");
 
         } else {
-            System.out.println("Bitte gib 1 für Haus oder 2 für Appartment ein!"); 
+            System.out.println("Bitte gib 1 für Haus oder 2 für Wohnung ein!"); 
         }
    }
 
@@ -374,7 +372,7 @@ public class Main {
         	Wohnung.delete(id);
         	System.out.println("Wohnung mit der Id " + id + " wurde gel�scht");
         } else {
-        	 System.out.println("Bitte gib 1 für Haus oder 2 für Appartment ein!");
+        	 System.out.println("Bitte gib 1 für Haus oder 2 für Wohnung ein!");
         }
 	}
 	/**
@@ -449,7 +447,7 @@ public class Main {
 		m.setDuration(FormUtil.readString("Vertragsdauer"));
 		m.setAdditionalCosts(FormUtil.readFloat("Zus�tzliche Kosten"));
 		m.setPersonId(FormUtil.readInt("PersonId"));
-		m.setApartmentId(FormUtil.readInt("ApartmentId"));
+		m.setApartmentId(FormUtil.readInt("WohnungId"));
 		m.save();
 		
 		System.out.println("Mietvertrag mit der ID "+m.getId()+" wurde erzeugt.");
@@ -482,7 +480,7 @@ public class Main {
         					   " |Vertragsdauer:" + m.getDuration() +
         					   " |Zus�tzliche Kosten:" + m.getAdditionalCosts() +
            					   " |PersonID:" + m.getPersonId() +
-        					   " |ApartmentID:" + m.getApartmentId());
+        					   " |WohnungID:" + m.getApartmentId());
         }
 
 		System.out.println("Kaufvertr�ge:");

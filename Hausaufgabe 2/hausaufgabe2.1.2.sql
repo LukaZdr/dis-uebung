@@ -65,10 +65,10 @@ alter table estates
 create table apartments(
 	id serial primary key,
 	floor int not null,
-	rent money not null,
+	rent real not null,
 	rooms int not null,
 	balcony int,
-	build_in_kitchen bool not null,
+	built_in_kitchen bool not null,
 	estate_id int not null
 );
 
@@ -78,7 +78,7 @@ alter table apartments
 create table houses(
 	id serial primary key,
 	floors int not null,
-	price money not null,
+	price real not null,
 	garden bool,
 	estate_id int not null
 );
@@ -146,8 +146,8 @@ values (70, 'Janucha', 'Superstreet 123', 'user_user', 'secret_password');
 insert into estates(id, city, postal_code, street, street_number, square_area, agent_id)
 values (54, 'Hamburg', 223344, 'Evenbetterstreet', 321, 200, 70);
 
-insert into apartments(id, floor, rent, rooms, balcony, build_in_kitchen, estate_id)
-values (1, 3, '$1020', 5, 2, true, 54);
+insert into apartments(id, floor, rent, rooms, balcony, built_in_kitchen, estate_id)
+values (1, 3, '1020', 5, 2, true, 54);
 
 insert into rents(id, tenancy_contracts_id, apartment_id, person_id)
 values (2, 12, 1, 68);
@@ -157,7 +157,7 @@ insert into estates(id, city, postal_code, street, street_number, square_area, a
 values (55, 'Berlin', 22222, 'Thebeststreet', 420, 250, 70);
 
 insert into houses(id, floors, price, garden, estate_id)
-values (1, 2, '$530.000', false, 55);
+values (1, 2, '530.000', false, 55);
 
 insert into sells(id, purchase_contract_id, house_id, person_id)
 values (1, 16, 1, 68);

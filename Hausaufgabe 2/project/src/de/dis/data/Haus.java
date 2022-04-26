@@ -201,6 +201,7 @@ public class Haus {
 				
 				pstmtImmo.close();
 				pstmtHaus.close();
+				System.out.println("Das Haus mit der Id " + getId() + " wurde geupdated");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

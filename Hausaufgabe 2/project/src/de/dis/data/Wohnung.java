@@ -219,6 +219,8 @@ public class Wohnung {
 				
 				pstmtImmo.close();
 				pstmtApartment.close();
+				System.out.println("Die Wohnung mit der Id " + getId() + " wurde geupdated");
+
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
