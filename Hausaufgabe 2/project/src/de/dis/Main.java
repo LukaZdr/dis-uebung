@@ -435,9 +435,9 @@ public class Main {
 	public static void createTenancyContract() {
 		Mietvertrag m = new Mietvertrag();
 		
-		m.setContractDate(FormUtil.readDate("Vertragsdatum (YYY-dd-mm)"));
+		m.setContractDate(FormUtil.readDate("Vertragsdatum (YYYY-mm-dd)"));
 		m.setPlace(FormUtil.readString("Ort"));
-		m.setStartDate(FormUtil.readDate("Vertragsbeginn (YYY-dd-mm)"));
+		m.setStartDate(FormUtil.readDate("Vertragsbeginn (YYYY-mm-dd)"));
 		m.setDuration(FormUtil.readString("Vertragsdauer"));
 		m.setAdditionalCosts(FormUtil.readFloat("Zusätzliche Kosten"));
 		m.setPersonId(FormUtil.readInt("PersonId"));
@@ -450,7 +450,7 @@ public class Main {
 	public static void createPurchaseContract() {
 		Kaufvertrag k = new Kaufvertrag();
 
-		k.setContractDate(FormUtil.readDate("Vertragsdatum (YYY-dd-mm)"));
+		k.setContractDate(FormUtil.readDate("Vertragsdatum (YYYY-mm-dd)"));
 		k.setPlace(FormUtil.readString("Ort"));
 		k.setInstallmentNumber(FormUtil.readInt("Ratennummer"));
 		k.setInterestRate(FormUtil.readFloat("Zinssatz"));
