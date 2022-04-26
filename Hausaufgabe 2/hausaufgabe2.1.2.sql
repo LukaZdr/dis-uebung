@@ -20,19 +20,19 @@ create table purchase_contracts(
 
 /* makes purchase_contracts a subclass of contracts by referenconmg */
 alter table purchase_contracts 
-	add constraint fk_purchase_contracts_contracts foreign key (contract_number) references contracts (contract_number);
+	add constraint fk_purchase_contracts_contracts foreign key (contract_number) references contracts (contract_number) on delete cascade;
 
 create table tenancy_contracts(
 	id serial primary key,
 	start_date timestamp not null,
-	duration interval not null, -- takes values like: 3 hours 20 minutes
-	additional_costs money not null, -- takes values like: $99.99
+	duration varchar(50) not null, -- takes values like: 3 hours 20 minutes
+	additional_costs real not null, -- takes values like: $99.99
 	contract_number int not null
 );
 
 /* makes tenancy_contracts a subclass of contracts by referenconmg */
 alter table tenancy_contracts 
-	add constraint fk_tenancy_contracts_contracts foreign key (contract_number) references contracts (contract_number);
+	add constraint fk_tenancy_contracts_contracts foreign key (contract_number) references contracts (contract_number) on delete cascade;
 
 create table persons(
 	id serial primary key,
@@ -99,7 +99,7 @@ alter table rents
 	add constraint fk_rents_tenancy_contract foreign key (tenancy_contracts_id) references tenancy_contracts (id);
 
 alter table rents
-	add constraint fk_rents_apartment foreign key (apartment_id) references apartments (id);
+	add constraint fk_rents_apartment foreign key (apartment_id) references apartments (id) on delete cascade;
 
 alter table rents
 	add constraint fk_rents_person foreign key (person_id) references persons (id);
@@ -115,7 +115,7 @@ alter table sells
 	add constraint fk_sells_purchase_contract foreign key (purchase_contract_id) references purchase_contracts (id);
 
 alter table sells
-	add constraint fk_sells_house foreign key (house_id) references houses (id);
+	add constraint fk_sells_house foreign key (house_id) references houses (id) on delete cascade;
 
 alter table sells
 	add constraint fk_sells_person foreign key (person_id) references persons (id);
@@ -134,7 +134,7 @@ insert into contracts(contract_number, contract_date, place)
 values (43, '2016-04-02', 'Berlin');
 
 insert into tenancy_contracts(id, start_date, duration, additional_costs, contract_number)
-values (12, '2014-05-11', '2 years 4 months', '$400.000', 43);
+values (12, '2014-05-11', '2 years 4 months', '400.000', 43);
 
 insert into persons(id, first_name, last_name, address)
 values (68, 'Janucha', 'Banucha', 'Superstreet 123');
