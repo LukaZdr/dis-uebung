@@ -17,10 +17,10 @@ public class Wohnung {
 	// Wohnung
 	private int id = -1;
 	private int floor;
-	private String rent;
+	private float rent;
 	private int rooms;
 	private int balcony;
-	private boolean build_in_kitchen;
+	private boolean built_in_kitchen;
 	private int estate_id;
 
 	// Immobilie
@@ -89,11 +89,11 @@ public class Wohnung {
 		this.floor = floor;
 	}
 
-	public String getRent() {
+	public float getRent() {
 		return rent;
 	}
 
-	public void setRent(String rent) {
+	public void setRent(float rent) {
 		this.rent = rent;
 	}
 
@@ -113,19 +113,19 @@ public class Wohnung {
 		this.balcony = balcony;
 	}
 
-	public boolean isBuild_in_kitchen() {
-		return build_in_kitchen;
+	public boolean isBuiltInKitchen() {
+		return built_in_kitchen;
 	}
 
-	public void setBuild_in_kitchen(boolean build_in_kitchen) {
-		this.build_in_kitchen = build_in_kitchen;
+	public void setBuiltInKitchen(boolean built_in_kitchen) {
+		this.built_in_kitchen = built_in_kitchen;
 	}
 
-	public int getEstate_id() {
+	public int getEstateId() {
 		return estate_id;
 	}
 
-	public void setEstate_id(int estate_id) {
+	public void setEstateId(int estate_id) {
 		this.estate_id = estate_id;
 	}
 	
@@ -160,33 +160,53 @@ public class Wohnung {
 					dbImmoId = rsImmo.getInt(1);
 					setId(dbImmoId);
 				}
-				String insertHausSQL = "INSERT INTO apartments (id, floor, rent, rooms, balcony, build_in_kitchen, estate_id) VALUES (?, ?, ?, ?, ?)";
+				String insertApartmentSQL = "INSERT INTO apartments (id, floor, rent, rooms, balcony, built_in_kitchen, estate_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-=
-				PreparedStatement pstmtHaus = con.prepareStatement(insertHausSQL,
+
+				PreparedStatement pstmtApartment = con.prepareStatement(insertApartmentSQL,
 						Statement.RETURN_GENERATED_KEYS);
 				
-				pstmtHaus.setInt(1, getId());
-				pstmtHaus.setInt(2, getFloor());
-				pstmtHaus.setString(3, getPrice());
-				pstmtHaus.setBoolean(4, isGarden());
-				pstmtHaus.setInt(5, dbImmoId);
-				ResultSet rsHaus = pstmtHaus.getGeneratedKeys();
+				pstmtApartment.setInt(1, getId());
+				pstmtApartment.setInt(2, getFloor());
+				pstmtApartment.setFloat(3, getRent());
+				pstmtApartment.setInt(4, getRooms());
+				pstmtApartment.setInt(5, getBalcony());
+				pstmtApartment.setBoolean(6, isBuiltInKitchen());
+				pstmtApartment.setInt(7, dbImmoId);
+				pstmtApartment.executeUpdate();
+				ResultSet rsApartment = pstmtApartment.getGeneratedKeys();
 				
-				rsHaus.close();
-				pstmtHaus.close();
+				rsApartment.close();
+				pstmtApartment.close();
 				pstmtImmo.close();
+				System.out.println("Immobilie mit der ID " + getId() + " wurde erzeugt.");
+
 			} else {
 				// Falls schon eine ID vorhanden ist, mache ein Update...
-				String updateHausSQL = "UPDATE houses SET id = ?, floors = ?, price = ?, garden = ? WHERE id = ?";
-				PreparedStatement pstmtHaus = con.prepareStatement(updateHausSQL);
-
+				String updateApartmentSQL = "UPDATE apartments SET floor = ?, rent = ?, rooms = ?, balcony = ?, built_in_kitchen = ?, estate_id = ? WHERE id = ?";
+				PreparedStatement pstmtApartment = con.prepareStatement(updateApartmentSQL);
+				
+				String selectSQL = "SELECT estate_id FROM apartments WHERE id = ?";
+				PreparedStatement pstmt = con.prepareStatement(selectSQL);
+				pstmt.setInt(1, getId());
+				ResultSet rs = pstmt.executeQuery();
+				int estateId = -1;
+				if (rs.next()) {
+					estateId = rs.getInt("estate_id");
+				} else {
+					System.out.println("Immobilie konnte nicht gefunden werden");
+					return;
+				}
+				
 				// Setze Anfrage Parameter
-				pstmtHaus.setInt(1, getId());
-				pstmtHaus.setInt(2, getFloors());
-				pstmtHaus.setString(3, getPrice());
-				pstmtHaus.setBoolean(4, isGarden());
-				pstmtHaus.executeUpdate();
+				pstmtApartment.setInt(1, getFloor());
+				pstmtApartment.setFloat(2, getRent());
+				pstmtApartment.setInt(3, getRooms());
+				pstmtApartment.setInt(4, getBalcony());
+				pstmtApartment.setBoolean(5, isBuiltInKitchen());
+				pstmtApartment.setInt(6, estateId);
+				pstmtApartment.setInt(7, getId());
+				pstmtApartment.executeUpdate();
 				
 				String updateImmoSQL = "UPDATE estates SET city = ?, postal_code = ?, street = ?, street_number = ?, square_area = ?, agent_id = ? WHERE id = ?";
 				PreparedStatement pstmtImmo = con.prepareStatement(updateImmoSQL);
@@ -197,10 +217,12 @@ public class Wohnung {
 				pstmtImmo.setInt(4, getStreetNumber());
 				pstmtImmo.setInt(5, getSquareArea());
 				pstmtImmo.setInt(6, getAgentId());
-				pstmtImmo.setInt(7, getEstateId());
+				pstmtImmo.setInt(7, estateId);
 				
 				pstmtImmo.close();
-				pstmtHaus.close();
+				pstmtApartment.close();
+				System.out.println("Die Wohnung mit der Id " + getId() + " wurde geupdated");
+
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -212,14 +234,30 @@ public static void delete(int id) {
 			// Hole Verbindung
 			Connection con = DbConnectionManager.getInstance().getConnection();
 			
+			String estateIdSQL = "SELECT estate_id FROM apartments WHERE id = ?";
+			PreparedStatement pstmt = con.prepareStatement(estateIdSQL);
+			pstmt.setInt(1, id);
+			ResultSet rs = pstmt.executeQuery();
+			
+			int delete_id;
+			if (rs.next()) {
+				delete_id = rs.getInt("estate_id");
+			} else {
+				System.out.println("Ein Wohnung mit dieser ID existiert nicht");
+				return;
+			}
+
 			// Erzeuge Anfrage
 			String deleteSQL = "DELETE FROM estates WHERE id = ?";
-			PreparedStatement pstmt = con.prepareStatement(deleteSQL);
-			pstmt.setInt(1, id);
+			PreparedStatement pstmtDelete = con.prepareStatement(deleteSQL);
+			pstmtDelete.setInt(1, delete_id);
+
 			
 			// FÃ¼hre Anfrage aus
-			pstmt.executeQuery();
+			pstmtDelete.execute();
+			pstmtDelete.close();
 			pstmt.close();
+			System.out.println("Wohnung mit der Id" + id + "wurde gelöscht");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

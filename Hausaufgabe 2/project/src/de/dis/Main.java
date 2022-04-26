@@ -1,11 +1,17 @@
 package de.dis;
 
-import java.sql.Date;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Objects;
+import java.util.List;
 
-import de.dis.data.Kaufvertrag;
+import de.dis.data.DbConnectionManager;
+import de.dis.data.Haus;
 import de.dis.data.Makler;
+import de.dis.data.Wohnung;
+import de.dis.data.Kaufvertrag;
 import de.dis.data.Mietvertrag;
 import de.dis.data.Person;
 
@@ -16,8 +22,18 @@ public class Main {
 	/**
 	 * Startet die Anwendung
 	 */
+	private static int currentMaklerId = -1;
+
 	public static void main(String[] args) {
 		showMainMenu();
+	}
+	
+	public static int getCurrentMaklerId() {
+		return currentMaklerId;
+	}
+
+	public static void setCurrentMaklerId(int id) {
+		currentMaklerId = id;
 	}
 	
 	/**
@@ -46,7 +62,7 @@ public class Main {
 					loginAdmin();
 					break;
 				case MENU_IMMOBILIE:
-					System.out.println("Immo");
+					loginMakler();
 					break;
 				case MENU_VERTRAG:
 					showVertragsMenu();
@@ -85,19 +101,22 @@ public class Main {
 		return;
 	}
 	
+	
 	/**
 	 * Zeigt die Maklerverwaltung
 	 */
 	public static void showMaklerMenu() {
 		//Menüoptionen
 		final int NEW_MAKLER = 0;
-		final int DELETE_MAKLER = 1;
-		final int BACK = 2;
+		final int EDIT_MAKLER = 1;
+		final int DELETE_MAKLER = 2;
+		final int BACK = 3;
 		
 		//Maklerverwaltungsmenü
 		Menu maklerMenu = new Menu("Makler-Verwaltung");
 		maklerMenu.addEntry("Neuer Makler", NEW_MAKLER);
-		maklerMenu.addEntry("Makler L�schen", DELETE_MAKLER);
+		maklerMenu.addEntry("Makler Bearbeiten", EDIT_MAKLER);
+		maklerMenu.addEntry("Makler L�schen", DELETE_MAKLER);
 		maklerMenu.addEntry("Zurück zum Hauptmenü", BACK);
 		
 		//Verarbeite Eingabe
@@ -108,6 +127,8 @@ public class Main {
 				case NEW_MAKLER:
 					newMakler();
 					break;
+				case EDIT_MAKLER:
+					editMarkler();
 				case DELETE_MAKLER:
 					deleteMarkler();
 				case BACK:
@@ -140,18 +161,214 @@ public class Main {
 	public static void deleteMarkler() {
 		int id = FormUtil.readInt("MarklerId");
 		Makler.delete(id);
-		System.out.println("Makler mit der ID "+id+" wurde gel�scht.");
+		System.out.println("Makler mit der ID "+id+" wurde gel�scht.");
+	}
+	
+	public static void editMarkler() {
+		int id = FormUtil.readInt("MarklerId");
+		Makler m = Makler.load(id);
+		
+		m.setName(FormUtil.readString("Name"));
+		m.setAddress(FormUtil.readString("Adresse"));
+		m.setLogin(FormUtil.readString("Login"));
+		m.setPassword(FormUtil.readString("Passwort"));
+		m.save();
+		
+		System.out.println("Makler mit der ID "+m.getId()+" wurde bearbeitet.");
 	}
 	
 	/**
-	 * ========== Immobilien-Verwaltung ==========
+	 * ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	 * ============================== Immobilienverwaltung ==============================
+	 * ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	 */
 	
-//	public static void showImmobilienMenu() {
-//		// Menu optionen
-//		final int N
-//	}
+	public static void loginMakler() {
+		
+		try {
+		
+			int  tries_left = 3;
+			System.out.println("Authentifiziere dich als Makler");
+			Connection con = DbConnectionManager.getInstance().getConnection();
+			
+			while (tries_left > 0) {
+				String login = FormUtil.readString("Login");
+				
+				String selectSQL = "SELECT id, password FROM estate_agents WHERE login = ?";
+				PreparedStatement pstmt = con.prepareStatement(selectSQL);
+				pstmt.setString(1, login);
+	
+				// Führe Anfrage aus
+				ResultSet rs = pstmt.executeQuery();
+				if (rs.next()) {
+					String agent_password = rs.getString("password");
+					while (tries_left > 0) {
+						String password = FormUtil.readString("Passwort");
+						if (Objects.equals(password, agent_password)) {
+							setCurrentMaklerId(rs.getInt("id"));
+							showEstateMenu();
+						} else{
+							tries_left -= 1;
+							System.out.println("Falsche Login-Passwort Kombination noch " + tries_left + " Versuche");
+						}
+					}
+				}
+				else {
+					System.out.println("User existiert nicht");
+				}
+			}
+			System.out.println("Passwort zu oft falsch eingegeben");
+			return;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Zeigt das Immobilienmenü
+	 */
+	public static void showEstateMenu() {
+		//Menüoptionen
+		final int NEW_ESTATE = 0;
+		final int EDIT_ESTATE = 1;
+		final int DELETE_ESTATE = 2;
+		final int BACK = 3;
+		
+		//Maklerverwaltungsmenü
+		Menu estateMenu = new Menu("Estate-Verwaltung");
+		estateMenu.addEntry("Neue Immobilie", NEW_ESTATE);
+		estateMenu.addEntry("Immobilie editieren", EDIT_ESTATE);
+		estateMenu.addEntry("Immobilie löschen", DELETE_ESTATE);
+		estateMenu.addEntry("Zurück zum Hauptmenü", BACK);
+		
+		//Verarbeite Eingabe
+		while(true) {
+			int response = estateMenu.show();
+			
+			switch(response) {
+				case NEW_ESTATE:
+					newEstate();
+					break;
+				case EDIT_ESTATE:
+					editEstate();
+					break;	
+				case DELETE_ESTATE:
+					deleteEstate();
+					break;
+				case BACK:
+					setCurrentMaklerId(-1);
+					showMainMenu();
+					return;
+			}
+		}
+	}
+	
+	
+	public static void newEstate() {
+		
+		System.out.println("Bitte gib 1 für Haus oder 2 für Wohnung ein!:");
+		int auswahl = FormUtil.readInt("Auswahl");
+		
+		if (auswahl == 1) {
+			Haus h = new Haus();
+			
+			//Immobilie
+			h.setCity(FormUtil.readString("Stadt"));
+			h.setPostalCode(FormUtil.readInt("Postleitzahl"));
+			h.setStreet(FormUtil.readString("Straße"));
+			h.setStreetNumber(FormUtil.readInt("Straßennummer"));
+			h.setSquareArea(FormUtil.readInt("Quadratmeter"));
+			h.setAgentId(getCurrentMaklerId());
+			
+	        //Haus
+	        h.setFloors(FormUtil.readInt("Etagen"));
+	        h.setPrice(FormUtil.readFloat("Preis"));
+	        h.setGarden(FormUtil.readBoolean("Garten? (True/False)"));
+	        h.save();			
+		} else if (auswahl == 2) {
+			Wohnung w = new Wohnung();
+			
+			// Immobilie
+			w.setCity(FormUtil.readString("Stadt"));
+			w.setPostalCode(FormUtil.readInt("Postleitzahl"));
+			w.setStreet(FormUtil.readString("Straße"));
+			w.setStreetNumber(FormUtil.readInt("Straßennummer"));
+			w.setSquareArea(FormUtil.readInt("Quadratmeter"));
+			w.setAgentId(getCurrentMaklerId());
+			
+			//Haus
+	        w.setFloor(FormUtil.readInt("Stockwerk"));
+	        w.setRent(FormUtil.readFloat("Miete"));
+	        w.setRooms(FormUtil.readInt("Anzahl Räume"));
+	        w.setBalcony(FormUtil.readInt("Balkonanzahl"));
+	        w.setAgentId(getCurrentMaklerId());
+	        w.setBuiltInKitchen(FormUtil.readBoolean("Einbauküche? (True/False)"));
+	       
+	        w.save();
+          
+		} else {
+			System.out.println("Bitte gib 1 für Haus oder 2 für Wohnung ein!:");
+            newEstate();
+		}
+	}
+	
+   public static void editEstate() {
+        System.out.println("Möchtest du 1. Haus oder 2. Wohnung bearbeiten? Bitte gebe 1 oder 2 ein:");
+        int auswahl = FormUtil.readInt("Auswahl");
+        if (auswahl == 1) {
+            Haus h = new Haus();
+        	//Immobilie
+            System.out.println("Bitte gib die ID der zu ändernden Immobilie an");
+            h.setId(FormUtil.readInt("ID"));
+            h.setCity(FormUtil.readString("Stadt"));
+            h.setPostalCode(FormUtil.readInt("Postleitzahl"));
+            h.setStreet(FormUtil.readString("Straße"));
+            h.setStreetNumber(FormUtil.readInt("Hausnummer"));
+            h.setSquareArea(FormUtil.readInt("Quadratmeter"));
+            h.setAgentId(getCurrentMaklerId());
+            //Haus
+            h.setFloors(FormUtil.readInt("Stockwerkanzahl"));
+            h.setPrice(FormUtil.readFloat("Preis"));
+            h.setGarden(FormUtil.readBoolean("Garten? (True/False)"));
+            h.save();
+        } else if (auswahl == 2) {
+            Wohnung w = new Wohnung();
+            //Immobilie
+            System.out.println("Bitte gib die ID der zuändernden Immobilie an");
+            w.setId(FormUtil.readInt("ID"));
+            w.setCity(FormUtil.readString("Stadt"));
+            w.setPostalCode(FormUtil.readInt("Postleitzahl"));
+            w.setStreet(FormUtil.readString("Straße"));
+            w.setStreetNumber(FormUtil.readInt("Hausnummer"));
+            w.setSquareArea(FormUtil.readInt("Quadratmeter"));
+            w.setAgentId(getCurrentMaklerId());
+            //Wohnung
+            w.setFloor(FormUtil.readInt("Stockwerk"));
+            w.setRent(FormUtil.readFloat("Mietkosten"));
+            w.setRooms(FormUtil.readInt("Anzahl Räume"));
+            w.setBalcony(FormUtil.readInt("Balkonanzahl"));
+            w.setBuiltInKitchen(FormUtil.readBoolean("Einbauküche? (True/False)"));
+            w.save();
 
+        } else {
+            System.out.println("Bitte gib 1 für Haus oder 2 für Wohnung ein!"); 
+        }
+   }
+
+	public static void deleteEstate() {
+		System.out.println("Möchtest du 1. Haus oder 2. Wohnung L�schen? Bitte gebe 1 oder 2 ein:");
+        int auswahl = FormUtil.readInt("Auswahl");
+        if (auswahl == 1) {
+        	int id = FormUtil.readInt("Id");
+        	Haus.delete(id);
+        } else if (auswahl == 2) {
+        	int id = FormUtil.readInt("Id");
+        	Wohnung.delete(id);
+        } else {
+        	 System.out.println("Bitte gib 1 für Haus oder 2 für Wohnung ein!");
+        }
+	}
 	/**
 	 * ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	 * ============================== Vertragsverwaltung ============================
@@ -218,14 +435,13 @@ public class Main {
 	public static void createTenancyContract() {
 		Mietvertrag m = new Mietvertrag();
 		
-		m.setContractDate(Date.valueOf(FormUtil.readString("Vertragsdatum (YYY-dd-mm)")));
+		m.setContractDate(FormUtil.readDate("Vertragsdatum (YYYY-mm-dd)"));
 		m.setPlace(FormUtil.readString("Ort"));
-		m.setStartDate(Date.valueOf(FormUtil.readString("Vertragsbeginn (YYY-dd-mm)")));
+		m.setStartDate(FormUtil.readDate("Vertragsbeginn (YYYY-mm-dd)"));
 		m.setDuration(FormUtil.readString("Vertragsdauer"));
-		float kosten = Float.parseFloat(FormUtil.readString("Zus�tzliche Kosten"));
-		m.setAdditionalCosts(kosten);
+		m.setAdditionalCosts(FormUtil.readFloat("Zus�tzliche Kosten"));
 		m.setPersonId(FormUtil.readInt("PersonId"));
-		m.setApartmentId(FormUtil.readInt("ApartmentId"));
+		m.setApartmentId(FormUtil.readInt("WohnungId"));
 		m.save();
 		
 		System.out.println("Mietvertrag mit der ID "+m.getId()+" wurde erzeugt.");
@@ -234,12 +450,10 @@ public class Main {
 	public static void createPurchaseContract() {
 		Kaufvertrag k = new Kaufvertrag();
 
-		
-		k.setContractDate(Date.valueOf(FormUtil.readString("Vertragsdatum (YYY-dd-mm)")));
+		k.setContractDate(FormUtil.readDate("Vertragsdatum (YYYY-mm-dd)"));
 		k.setPlace(FormUtil.readString("Ort"));
 		k.setInstallmentNumber(FormUtil.readInt("Ratennummer"));
-		float zinssatz = Float.parseFloat(FormUtil.readString("Zinssatz"));
-		k.setInterestRate(zinssatz);
+		k.setInterestRate(FormUtil.readFloat("Zinssatz"));
 		k.setPersonId(FormUtil.readInt("PersonId"));
 		k.setHouseId(FormUtil.readInt("HouseId"));
 		k.save();
@@ -260,7 +474,7 @@ public class Main {
         					   " |Vertragsdauer:" + m.getDuration() +
         					   " |Zus�tzliche Kosten:" + m.getAdditionalCosts() +
            					   " |PersonID:" + m.getPersonId() +
-        					   " |ApartmentID:" + m.getApartmentId());
+        					   " |WohnungID:" + m.getApartmentId());
         }
 
 		System.out.println("Kaufvertr�ge:");
