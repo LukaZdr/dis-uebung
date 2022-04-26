@@ -363,7 +363,7 @@ public class Main {
    }
 
 	public static void deleteEstate() {
-		System.out.println("MÃ¶chtest du 1. Haus oder 2. Wohnung bearbeiten? Bitte gebe 1 oder 2 ein:");
+		System.out.println("MÃ¶chtest du 1. Haus oder 2. Wohnung Löschen? Bitte gebe 1 oder 2 ein:");
         int auswahl = FormUtil.readInt("Auswahl");
         if (auswahl == 1) {
         	int id = FormUtil.readInt("Id");
@@ -372,7 +372,7 @@ public class Main {
         } else if (auswahl == 2) {
         	int id = FormUtil.readInt("Id");
         	Wohnung.delete(id);
-        	System.out.println("Wohnung mit der Id" + id + "wurde gelöscht");
+        	System.out.println("Wohnung mit der Id " + id + " wurde gelöscht");
         } else {
         	 System.out.println("Bitte gib 1 fÃ¼r Haus oder 2 fÃ¼r Appartment ein!");
         }
