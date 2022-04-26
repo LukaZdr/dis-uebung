@@ -17,7 +17,7 @@ public class Haus {
 	// Haus
 	private int id = -1;
 	private int floors;
-	private String price;
+	private float price;
 	private boolean garden;
 	private int estateId;
 
@@ -88,11 +88,11 @@ public class Haus {
 
 	// Haus
 
-	public String getPrice() {
+	public float getPrice() {
 		return price;
 	}
 
-	public void setPrice(String price) {
+	public void setPrice(float price) {
 		this.price = price;
 	}
 
@@ -150,7 +150,7 @@ public class Haus {
 				
 				pstmtHaus.setInt(1, getId());
 				pstmtHaus.setInt(2, getFloors());
-				pstmtHaus.setString(3, getPrice());
+				pstmtHaus.setFloat(3, getPrice());
 				pstmtHaus.setBoolean(4, isGarden());
 				pstmtHaus.setInt(5, dbImmoId);
 				ResultSet rsHaus = pstmtHaus.getGeneratedKeys();
@@ -165,14 +165,27 @@ public class Haus {
 				
 			} else {
 				// Falls schon eine ID vorhanden ist, mache ein Update...
-				String updateHausSQL = "UPDATE houses SET floors = ?, price = ?, garden = ? WHERE id = ?";
+				String updateHausSQL = "UPDATE houses SET floors = ?, price = ?, garden = ?, estate_id = ? WHERE id = ?";
 				PreparedStatement pstmtHaus = con.prepareStatement(updateHausSQL);
 
+				String selectSQL = "SELECT estate_id FROM houses WHERE id = ?";
+				PreparedStatement pstmt = con.prepareStatement(selectSQL);
+				pstmt.setInt(1, getId());
+				ResultSet rs = pstmt.executeQuery();
+				int estate_id = -1;
+				if (rs.next()) {
+					estate_id = rs.getInt("estate_id");
+				} else {
+					System.out.println("Immobilie konnte nicht gefunden werden");
+					return;
+				}
+				
 				// Setze Anfrage Parameter
 				pstmtHaus.setInt(1, getFloors());
-				pstmtHaus.setString(2, getPrice());
+				pstmtHaus.setFloat(2, getPrice());
 				pstmtHaus.setBoolean(3, isGarden());
-				pstmtHaus.setInt(4, getId());
+				pstmtHaus.setInt(4, estate_id);
+				pstmtHaus.setInt(5, getId());
 				pstmtHaus.executeUpdate();
 				
 				String updateImmoSQL = "UPDATE estates SET city = ?, postal_code = ?, street = ?, street_number = ?, square_area = ?, agent_id = ? WHERE id = ?";
@@ -184,7 +197,7 @@ public class Haus {
 				pstmtImmo.setInt(4, getStreetNumber());
 				pstmtImmo.setInt(5, getSquareArea());
 				pstmtImmo.setInt(6, getAgentId());
-				pstmtImmo.setInt(7, getEstateId());
+				pstmtImmo.setInt(7, estate_id);
 				
 				pstmtImmo.close();
 				pstmtHaus.close();

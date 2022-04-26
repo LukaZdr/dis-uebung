@@ -17,7 +17,7 @@ public class Wohnung {
 	// Wohnung
 	private int id = -1;
 	private int floor;
-	private String rent;
+	private float rent;
 	private int rooms;
 	private int balcony;
 	private boolean built_in_kitchen;
@@ -89,11 +89,11 @@ public class Wohnung {
 		this.floor = floor;
 	}
 
-	public String getRent() {
+	public float getRent() {
 		return rent;
 	}
 
-	public void setRent(String rent) {
+	public void setRent(float rent) {
 		this.rent = rent;
 	}
 
@@ -160,35 +160,51 @@ public class Wohnung {
 					dbImmoId = rsImmo.getInt(1);
 					setId(dbImmoId);
 				}
-				String insertHausSQL = "INSERT INTO apartments (id, floor, rent, rooms, balcony, built_in_kitchen, estate_id) VALUES (?, ?, ?, ?, ?)";
+				String insertApartmentSQL = "INSERT INTO apartments (id, floor, rent, rooms, balcony, built_in_kitchen, estate_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
 
-				PreparedStatement pstmtHaus = con.prepareStatement(insertHausSQL,
+				PreparedStatement pstmtApartment = con.prepareStatement(insertApartmentSQL,
 						Statement.RETURN_GENERATED_KEYS);
 				
-				pstmtHaus.setInt(1, getId());
-				pstmtHaus.setInt(2, getFloor());
-				pstmtHaus.setInt(3, getRooms());
-				pstmtHaus.setInt(4, getBalcony());
-				pstmtHaus.setBoolean(5, isBuiltInKitchen());
-				pstmtHaus.setInt(5, dbImmoId);
-				ResultSet rsHaus = pstmtHaus.getGeneratedKeys();
+				pstmtApartment.setInt(1, getId());
+				pstmtApartment.setInt(2, getFloor());
+				pstmtApartment.setFloat(3, getRent());
+				pstmtApartment.setInt(4, getRooms());
+				pstmtApartment.setInt(5, getBalcony());
+				pstmtApartment.setBoolean(6, isBuiltInKitchen());
+				pstmtApartment.setInt(7, dbImmoId);
+				pstmtApartment.executeUpdate();
+				ResultSet rsApartment = pstmtApartment.getGeneratedKeys();
 				
-				rsHaus.close();
-				pstmtHaus.close();
+				rsApartment.close();
+				pstmtApartment.close();
 				pstmtImmo.close();
 			} else {
 				// Falls schon eine ID vorhanden ist, mache ein Update...
-				String updateHausSQL = "UPDATE houses SET id = ?, floors = ?, price = ?, garden = ? WHERE id = ?";
-				PreparedStatement pstmtHaus = con.prepareStatement(updateHausSQL);
-
+				String updateApartmentSQL = "UPDATE apartments SET floor = ?, rent = ?, rooms = ?, balcony = ?, built_in_kitchen = ?, estate_id = ? WHERE id = ?";
+				PreparedStatement pstmtApartment = con.prepareStatement(updateApartmentSQL);
+				
+				String selectSQL = "SELECT estate_id FROM apartments WHERE id = ?";
+				PreparedStatement pstmt = con.prepareStatement(selectSQL);
+				pstmt.setInt(1, getId());
+				ResultSet rs = pstmt.executeQuery();
+				int estate_id = -1;
+				if (rs.next()) {
+					estate_id = rs.getInt("estate_id");
+				} else {
+					System.out.println("Immobilie konnte nicht gefunden werden");
+					return;
+				}
+				
 				// Setze Anfrage Parameter
-				pstmtHaus.setInt(1, getId());
-				pstmtHaus.setInt(2, getFloor());
-				pstmtHaus.setInt(3, getRooms());
-				pstmtHaus.setInt(4, getBalcony());
-				pstmtHaus.setBoolean(5, isBuiltInKitchen());
-				pstmtHaus.executeUpdate();
+				pstmtApartment.setInt(1, getFloor());
+				pstmtApartment.setFloat(2, getRent());
+				pstmtApartment.setInt(3, getRooms());
+				pstmtApartment.setInt(4, getBalcony());
+				pstmtApartment.setBoolean(5, isBuiltInKitchen());
+				pstmtApartment.setInt(6, estate_id);
+				pstmtApartment.setInt(7, getId());
+				pstmtApartment.executeUpdate();
 				
 				String updateImmoSQL = "UPDATE estates SET city = ?, postal_code = ?, street = ?, street_number = ?, square_area = ?, agent_id = ? WHERE id = ?";
 				PreparedStatement pstmtImmo = con.prepareStatement(updateImmoSQL);
@@ -199,10 +215,10 @@ public class Wohnung {
 				pstmtImmo.setInt(4, getStreetNumber());
 				pstmtImmo.setInt(5, getSquareArea());
 				pstmtImmo.setInt(6, getAgentId());
-				pstmtImmo.setInt(7, getEstateId());
+				pstmtImmo.setInt(7, estate_id);
 				
 				pstmtImmo.close();
-				pstmtHaus.close();
+				pstmtApartment.close();
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
