@@ -285,10 +285,7 @@ public class Main {
 	        h.setFloors(FormUtil.readInt("Etagen"));
 	        h.setPrice(FormUtil.readFloat("Preis"));
 	        h.setGarden(FormUtil.readBoolean("Garten? (True/False)"));
-	        h.save();
-	        
-	        System.out.println("Immobilie mit der ID " + h.getId() + " wurde erzeugt.");
-			
+	        h.save();			
 		} else if (auswahl == 2) {
 			Wohnung w = new Wohnung();
 			
@@ -353,7 +350,6 @@ public class Main {
             w.setBalcony(FormUtil.readInt("Balkonanzahl"));
             w.setBuiltInKitchen(FormUtil.readBoolean("Einbauküche? (True/False)"));
             w.save();
-            System.out.println("Die Wohnung mit der Id " + w.getId() + " wurde geupdated");
 
         } else {
             System.out.println("Bitte gib 1 für Haus oder 2 für Wohnung ein!"); 
@@ -366,11 +362,9 @@ public class Main {
         if (auswahl == 1) {
         	int id = FormUtil.readInt("Id");
         	Haus.delete(id);
-        	System.out.println("Haus mit der Id" + id + "wurde gel�scht");
         } else if (auswahl == 2) {
         	int id = FormUtil.readInt("Id");
         	Wohnung.delete(id);
-        	System.out.println("Wohnung mit der Id " + id + " wurde gel�scht");
         } else {
         	 System.out.println("Bitte gib 1 für Haus oder 2 für Wohnung ein!");
         }

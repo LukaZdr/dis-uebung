@@ -25,8 +25,8 @@ alter table purchase_contracts
 create table tenancy_contracts(
 	id serial primary key,
 	start_date timestamp not null,
-	duration varchar(50) not null, -- takes values like: 3 hours 20 minutes
-	additional_costs real not null, -- takes values like: $99.99
+	duration varchar(50) not null,
+	additional_costs real not null,
 	contract_number int not null
 );
 

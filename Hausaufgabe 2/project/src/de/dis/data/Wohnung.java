@@ -179,6 +179,8 @@ public class Wohnung {
 				rsApartment.close();
 				pstmtApartment.close();
 				pstmtImmo.close();
+				System.out.println("Immobilie mit der ID " + getId() + " wurde erzeugt.");
+
 			} else {
 				// Falls schon eine ID vorhanden ist, mache ein Update...
 				String updateApartmentSQL = "UPDATE apartments SET floor = ?, rent = ?, rooms = ?, balcony = ?, built_in_kitchen = ?, estate_id = ? WHERE id = ?";
@@ -188,9 +190,9 @@ public class Wohnung {
 				PreparedStatement pstmt = con.prepareStatement(selectSQL);
 				pstmt.setInt(1, getId());
 				ResultSet rs = pstmt.executeQuery();
-				int estate_id = -1;
+				int estateId = -1;
 				if (rs.next()) {
-					estate_id = rs.getInt("estate_id");
+					estateId = rs.getInt("estate_id");
 				} else {
 					System.out.println("Immobilie konnte nicht gefunden werden");
 					return;
@@ -202,7 +204,7 @@ public class Wohnung {
 				pstmtApartment.setInt(3, getRooms());
 				pstmtApartment.setInt(4, getBalcony());
 				pstmtApartment.setBoolean(5, isBuiltInKitchen());
-				pstmtApartment.setInt(6, estate_id);
+				pstmtApartment.setInt(6, estateId);
 				pstmtApartment.setInt(7, getId());
 				pstmtApartment.executeUpdate();
 				
@@ -215,7 +217,7 @@ public class Wohnung {
 				pstmtImmo.setInt(4, getStreetNumber());
 				pstmtImmo.setInt(5, getSquareArea());
 				pstmtImmo.setInt(6, getAgentId());
-				pstmtImmo.setInt(7, estate_id);
+				pstmtImmo.setInt(7, estateId);
 				
 				pstmtImmo.close();
 				pstmtApartment.close();
@@ -255,6 +257,7 @@ public static void delete(int id) {
 			pstmtDelete.execute();
 			pstmtDelete.close();
 			pstmt.close();
+			System.out.println("Wohnung mit der Id" + id + "wurde gelöscht");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
