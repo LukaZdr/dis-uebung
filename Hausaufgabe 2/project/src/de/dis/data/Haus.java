@@ -136,33 +136,32 @@ public class Haus {
 				pstmtImmo.setInt(6, getAgentId());
 				pstmtImmo.executeUpdate();
 
-				// Hole die Id des engefC<gten Datensatzes
+				// Immobilien id speichern
 				ResultSet rsImmo = pstmtImmo.getGeneratedKeys();
-				int dbImmoId = -1;
 				if (rsImmo.next()) {
-					dbImmoId = rsImmo.getInt(1);
-					setId(dbImmoId);
+					setEstateId(rsImmo.getInt(1));
 				}
-				String insertHausSQL = "INSERT INTO houses (id, floors, price, garden, estate_id) VALUES (?, ?, ?, ?, ?)";
+				String insertHausSQL = "INSERT INTO houses (floors, price, garden, estate_id) VALUES (?, ?, ?, ?)";
 
 				PreparedStatement pstmtHaus = con.prepareStatement(insertHausSQL,
 						Statement.RETURN_GENERATED_KEYS);
 				
-				pstmtHaus.setInt(1, getId());
-				pstmtHaus.setInt(2, getFloors());
-				pstmtHaus.setFloat(3, getPrice());
-				pstmtHaus.setBoolean(4, isGarden());
-				pstmtHaus.setInt(5, dbImmoId);
+				pstmtHaus.setInt(1, getFloors());
+				pstmtHaus.setFloat(2, getPrice());
+				pstmtHaus.setBoolean(3, isGarden());
+				pstmtHaus.setInt(4, getEstateId());
+				pstmtHaus.executeUpdate();
+
 				ResultSet rsHaus = pstmtHaus.getGeneratedKeys();
-				
 				if (rsHaus.next()) {
 					setId(rsHaus.getInt(1));
 				}
 				
+				rsImmo.close();
 				rsHaus.close();
 				pstmtHaus.close();
 				pstmtImmo.close();
-				System.out.println("Immobilie mit der ID " + getId() + " wurde erzeugt.");
+				System.out.println("Das Haus mit der ID " + getId() + " wurde erzeugt.");
 
 			} else {
 				// Falls schon eine ID vorhanden ist, mache ein Update...
@@ -201,8 +200,8 @@ public class Haus {
 				pstmtImmo.setInt(7, estateId);
 				pstmtImmo.executeUpdate();
 				
-				pstmtImmo.close();
 				pstmtHaus.close();
+				pstmtImmo.close();
 				System.out.println("Das Haus mit der Id " + getId() + " wurde geupdated");
 			}
 		} catch (SQLException e) {

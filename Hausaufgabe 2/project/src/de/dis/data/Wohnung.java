@@ -140,7 +140,6 @@ public class Wohnung {
 				// Achtung, hier wird noch ein Parameter mitgegeben,
 				// damit spC$ter generierte IDs zurC<ckgeliefert werden!
 				String insertImmoSQL = "INSERT INTO estates (city, postal_code, street, street_number, square_area, agent_id) VALUES (?, ?, ?, ?, ?, ?)";
-				
 				PreparedStatement pstmtImmo = con.prepareStatement(insertImmoSQL,
 						Statement.RETURN_GENERATED_KEYS);
 
@@ -153,33 +152,34 @@ public class Wohnung {
 				pstmtImmo.setInt(6, getAgentId());
 				pstmtImmo.executeUpdate();
 
-				// Hole die Id des engefC<gten Datensatzes
+				// Immobilien id speichern
 				ResultSet rsImmo = pstmtImmo.getGeneratedKeys();
-				int dbImmoId = -1;
 				if (rsImmo.next()) {
-					dbImmoId = rsImmo.getInt(1);
-					setId(dbImmoId);
+					setEstateId(rsImmo.getInt(1));
 				}
-				String insertApartmentSQL = "INSERT INTO apartments (id, floor, rent, rooms, balcony, built_in_kitchen, estate_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-
+				
+				String insertApartmentSQL = "INSERT INTO apartments (floor, rent, rooms, balcony, built_in_kitchen, estate_id) VALUES (?, ?, ?, ?, ?, ?)";
 				PreparedStatement pstmtApartment = con.prepareStatement(insertApartmentSQL,
 						Statement.RETURN_GENERATED_KEYS);
 				
-				pstmtApartment.setInt(1, getId());
-				pstmtApartment.setInt(2, getFloor());
-				pstmtApartment.setFloat(3, getRent());
-				pstmtApartment.setInt(4, getRooms());
-				pstmtApartment.setInt(5, getBalcony());
-				pstmtApartment.setBoolean(6, isBuiltInKitchen());
-				pstmtApartment.setInt(7, dbImmoId);
+				pstmtApartment.setInt(1, getFloor());
+				pstmtApartment.setFloat(2, getRent());
+				pstmtApartment.setInt(3, getRooms());
+				pstmtApartment.setInt(4, getBalcony());
+				pstmtApartment.setBoolean(5, isBuiltInKitchen());
+				pstmtApartment.setInt(6, getEstateId());
 				pstmtApartment.executeUpdate();
+
 				ResultSet rsApartment = pstmtApartment.getGeneratedKeys();
+				if (rsApartment.next()) {
+					setId(rsApartment.getInt(1));
+				}
 				
+				rsImmo.close();
 				rsApartment.close();
 				pstmtApartment.close();
 				pstmtImmo.close();
-				System.out.println("Immobilie mit der ID " + getId() + " wurde erzeugt.");
+				System.out.println("Die Wohnung mit der ID " + getId() + " wurde erzeugt.");
 
 			} else {
 				// Falls schon eine ID vorhanden ist, mache ein Update...

@@ -147,17 +147,17 @@ insert into estates(id, city, postal_code, street, street_number, square_area, a
 values (54, 'Hamburg', 223344, 'Evenbetterstreet', 321, 200, 70);
 
 insert into apartments(id, floor, rent, rooms, balcony, built_in_kitchen, estate_id)
-values (1, 3, '1020', 5, 2, true, 54);
+values (80, 3, '1020', 5, 2, true, 54);
 
 insert into rents(id, tenancy_contracts_id, apartment_id, person_id)
-values (2, 12, 1, 68);
+values (60, 12, 80, 68);
 
 -- house
 insert into estates(id, city, postal_code, street, street_number, square_area, agent_id)
 values (55, 'Berlin', 22222, 'Thebeststreet', 420, 250, 70);
 
 insert into houses(id, floors, price, garden, estate_id)
-values (1, 2, '530.000', false, 55);
+values (100, 2, '530.000', false, 55);
 
 insert into sells(id, purchase_contract_id, house_id, person_id)
-values (1, 16, 1, 68);
+values (200, 16, 100, 68);
