@@ -93,7 +93,6 @@ public class FormUtil {
 				System.err.println("Ungültige Eingabe: Bitte geben Sie einen Boolean an!");
 			}
 		}
-		
 		return ret;
 	}
 	
