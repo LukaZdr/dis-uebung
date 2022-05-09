@@ -26,9 +26,41 @@ commit;
 /* Read Commit: AccessShareLock */
 /* Serializable: AccessShareLock, SIReadLock */
 
-/* Aufgabe 2 */
-
+/* Aufgabe 2b */
 
 begin;
-select * from sheet3 where id > 3;
+select * from sheet3 where id > 2;
+commit;
+
+/* Aufgabe 2c */
+begin;
+update sheet3
+set name = 'Norbert'
+where id = 3;
+commit;
+
+/* Aufgabe 2e */
+begin;
+create table sheet3second (
+	id serial primary key,
+	name varchar(50)
+);
+commit;
+
+/* run the code below and afterwards the code from 2e in
+ * transaction2 (has to happen within in 10 seconds) 
+ * transaction level: read committed for both transactions*/
+begin;
+create table sheet3second (
+	id serial primary key,
+	name varchar(50)
+);
+insert into sheet3second (id, name)
+values (1, 'Luka');
+commit;
+
+begin;
+update sheet3 set name ='Foo' where id=1;
+select pg_sleep(10);
+update sheet3second set name ='Bar' where id=1;
 commit;
