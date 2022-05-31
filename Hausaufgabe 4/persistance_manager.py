@@ -41,9 +41,7 @@ class PersistanceManager(object):
       raise Exception('Transaction Id does not match any running transactions')
     self.lsn += 1
     with open(self.logfile, "a+") as log:
-      log.seek(0)
-      if len(log.readline()) > 0:
-        log.write("\n")
+      log.write("\n")
 
       # Ending transaction if EOT is true
       if eot:
@@ -77,16 +75,16 @@ class PersistanceManager(object):
       for transaction_id in commited_transactions:
         self.flush(transaction_id)
 
+  def begin_transaction(cls):
+    cls.highest_transaction_id += 1
+    cls.active_transactions.add(cls.highest_transaction_id)
+    return cls.highest_transaction_id
+
   def commit(self, transaction_id):
     if transaction_id not in self.active_transactions:
       raise Exception('Transaction Id does not match any running transactions')
     self.log(transaction_id, eot=True)
     self.active_transactions.remove(transaction_id)
-
-  def begin_transaction(cls):
-    cls.highest_transaction_id += 1
-    cls.active_transactions.add(cls.highest_transaction_id)
-    return cls.highest_transaction_id
 
   def flush(self, transaction_id):
     new_buffer = []

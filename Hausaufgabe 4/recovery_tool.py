@@ -1,11 +1,6 @@
-from persistance_manager import PersistanceManager
-
-from persistance_manager import PersistanceManager
-
 class RecoveryTool():
   def __init__(self):
     self.logfile = 'log.txt'
-    self.pm = PersistanceManager()
 
   def run(self):
     logs = open(self.logfile)
@@ -32,8 +27,6 @@ class RecoveryTool():
             if int(lsn) > int(page_lsn):
               with open(f"pages/page{page_id}.txt", 'w+') as p:
                 p.write(f"{lsn}, {data}")
-
-          # if int(lsn) > page_lsn:
-          #   page.write(f"{lsn}, {data}")
-          # else:
-          #   log
+          else:
+            with open(f"pages/page{page_id}.txt", 'w+') as p:
+              p.write(f"{lsn}, {data}")

@@ -15,7 +15,7 @@ class Client():
     for _ in range(1, operation_count):
       page_id = random.randint(self.start_page, self.end_page)
       self.pm.write(trans_id, page_id, self.get_random_string(10))
-      time.sleep(3)
+      time.sleep(1)
     self.pm.commit(trans_id)
 
   def get_random_string(self, length):
